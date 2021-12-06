@@ -2,8 +2,6 @@
 
 A reference project to deploy a Python Flask app onto GCP Cloud Run
 
-![AWS Architecture](img/aws-flask-ecs.JPG)
-
 ## Pre-requisite
 
 - Make sure you have installed Python 3, and [pip](https://pip.pypa.io/en/stable/installing/)
@@ -13,7 +11,7 @@ python3 --version # prints Python 3 version
 pip3 --version # prints pip version
 ```
 
-## Run/Build app locally
+## Run/build app locally
 
 ```bash
 virtualenv -p /usr/bin/python3 venv # create new virtual environment venv
