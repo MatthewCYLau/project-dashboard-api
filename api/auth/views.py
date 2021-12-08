@@ -1,5 +1,5 @@
-from flask import Blueprint
-from api.db.setup import client
+from flask import Blueprint, request
+from api.db.setup import db
 from .models import User
 
 bp = Blueprint("auth", __name__)
@@ -7,11 +7,15 @@ bp = Blueprint("auth", __name__)
 
 @bp.route("/auth", methods=(["GET"]))
 def get_users():
-    return "Login user"
+    users = list(db["users"].find({}))
+    for user in users:
+        print(str(user))
+    return "Ok"
 
 
 @bp.route("/auth", methods=(["POST"]))
 def register_user():
-    db = client["pytho-gcp"]
-    db.users.insert_one({"email": "foo", "password": "bar"})
+    data = request.get_json()
+    new_user = User(email=data["email"], password=data["password"])
+    db.users.insert_one(new_user.to_dictionary())
     return "Register user"
