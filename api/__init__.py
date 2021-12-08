@@ -7,7 +7,7 @@ load_dotenv("config/.env")
 
 
 app = Flask(__name__)
-app.register_blueprint(auth.bp)
+app.register_blueprint(auth.bp, url_prefix="/api")
 
 db_connect()
 
