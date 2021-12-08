@@ -1,19 +1,19 @@
-from flask import Blueprint, request
+import json
+from flask import Blueprint, request, jsonify
+from bson import json_util
 from api.db.setup import db
 from .models import User
 
-bp = Blueprint("auth", __name__)
+bp = Blueprint("user", __name__)
 
 
-@bp.route("/auth", methods=(["GET"]))
+@bp.route("/users", methods=(["GET"]))
 def get_users():
     users = list(db["users"].find({}))
-    for user in users:
-        print(str(user))
-    return "Ok"
+    return jsonify(json.loads(json_util.dumps(users)))
 
 
-@bp.route("/auth", methods=(["POST"]))
+@bp.route("/users", methods=(["POST"]))
 def register_user():
     data = request.get_json()
     new_user = User(email=data["email"], password=data["password"])
