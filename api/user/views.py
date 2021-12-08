@@ -10,7 +10,7 @@ bp = Blueprint("user", __name__)
 @bp.route("/users", methods=(["GET"]))
 def get_users():
     users = list(db["users"].find({}))
-    return jsonify(json.loads(json_util.dumps(users)))
+    return jsonify(json.loads(json.dumps(users, default=lambda o: str(o))))
 
 
 @bp.route("/users", methods=(["POST"]))
