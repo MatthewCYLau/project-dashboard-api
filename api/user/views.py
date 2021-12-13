@@ -31,3 +31,15 @@ def register_user():
     new_user = User(email=data["email"], password=data["password"])
     db.users.insert_one(new_user.to_dictionary())
     return jsonify({"message": "User created"}), 201
+
+
+@bp.route("/users/<user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    try:
+        res = db["users"].delete_one({"_id": ObjectId(user_id)})
+        if res.deleted_count:
+            return "User removed", 200
+        else:
+            return "User not found", 404
+    except Exception:
+        return jsonify({"message": "Delete user by ID failed"}), 500
