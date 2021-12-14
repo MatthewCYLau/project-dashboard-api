@@ -2,18 +2,21 @@ from flask import Blueprint, request, jsonify
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
+from api.user.views import auth_required
 from .models import Project
 
 bp = Blueprint("project", __name__)
 
 
 @bp.route("/projects", methods=(["GET"]))
-def get_projects():
+@auth_required
+def get_projects(_):
     projects = list(db["projects"].find({}))
     return generate_response(projects)
 
 
 @bp.route("/projects/<project_id>", methods=(["GET"]))
+@auth_required
 def get_project_by_id(project_id):
     try:
         project = db["projects"].find_one({"_id": ObjectId(project_id)})
@@ -26,7 +29,8 @@ def get_project_by_id(project_id):
 
 
 @bp.route("/projects", methods=(["POST"]))
-def register_project():
+@auth_required
+def register_project(_):
     data = request.get_json()
     new_project = Project(name=data["name"])
     db.projects.insert_one(vars(new_project))
@@ -34,6 +38,7 @@ def register_project():
 
 
 @bp.route("/projects/<project_id>", methods=["DELETE"])
+@auth_required
 def delete_project(project_id):
     try:
         res = db["projects"].delete_one({"_id": ObjectId(project_id)})
