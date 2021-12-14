@@ -2,6 +2,8 @@
 
 A reference project to deploy a Python Flask app onto GCP Cloud Run
 
+![cicd cloud run workflow](https://github.com/MatthewCYLau/python-flask-gcp/actions/workflows/cicd-cloud-run.yml/badge.svg)
+
 ## Pre-requisite
 
 - Make sure you have installed Python 3, and [pip](https://pip.pypa.io/en/stable/installing/)
