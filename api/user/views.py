@@ -29,7 +29,7 @@ def get_user_by_id(user_id):
 def register_user():
     data = request.get_json()
     new_user = User(email=data["email"], password=data["password"])
-    db.users.insert_one(new_user.to_dictionary())
+    db.users.insert_one(vars(new_user))
     return jsonify({"message": "User created"}), 201
 
 

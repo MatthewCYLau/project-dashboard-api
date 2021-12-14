@@ -29,7 +29,7 @@ def get_project_by_id(project_id):
 def register_project():
     data = request.get_json()
     new_project = Project(name=data["name"])
-    db.projects.insert_one(new_project.to_dictionary())
+    db.projects.insert_one(vars(new_project))
     return jsonify({"message": "Project created"}), 201
 
 
