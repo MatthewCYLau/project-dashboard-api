@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import logging
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
@@ -17,7 +18,7 @@ def get_projects(_):
 
 @bp.route("/projects/<project_id>", methods=(["GET"]))
 @auth_required
-def get_project_by_id(project_id):
+def get_project_by_id(_, project_id):
     try:
         project = db["projects"].find_one({"_id": ObjectId(project_id)})
         if project:
@@ -30,7 +31,7 @@ def get_project_by_id(project_id):
 
 @bp.route("/projects", methods=(["POST"]))
 @auth_required
-def register_project(_):
+def create_project(_):
     data = request.get_json()
     new_project = Project(name=data["name"])
     db.projects.insert_one(vars(new_project))
@@ -39,7 +40,7 @@ def register_project(_):
 
 @bp.route("/projects/<project_id>", methods=["DELETE"])
 @auth_required
-def delete_project(project_id):
+def delete_project_by_id(_, project_id):
     try:
         res = db["projects"].delete_one({"_id": ObjectId(project_id)})
         if res.deleted_count:
@@ -48,3 +49,20 @@ def delete_project(project_id):
             return "Project not found", 404
     except Exception:
         return jsonify({"message": "Delete project by ID failed"}), 500
+
+
+@bp.route("/projects/<project_id>", methods=["PUT"])
+@auth_required
+def update_project_by_id(_, project_id):
+    data = request.get_json()
+    if not data or not data["name"]:
+        return jsonify({"message": "Missing field"}), 400
+    try:
+        res = db["projects"].replace_one({"_id": ObjectId(project_id)}, data, True)
+        if res.matched_count:
+            return "Project updated", 200
+        else:
+            return "Project not found", 404
+    except Exception as e:
+        logging.error(e)
+        return jsonify({"message": "Update project failed"}), 500

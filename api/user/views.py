@@ -90,7 +90,7 @@ def auth_required(f):
 
         try:
             data = jwt.decode(token, os.environ.get("JWT_SECRET"), algorithms="HS256")
-            user = db["users"].find_one({"email": data["email"]})
+            user = db["users"].find_one({"email": data["email"]}, {"password": False})
         except Exception as e:
             logging.error(e)
             return jsonify({"message": "Invalid token"}), 401
