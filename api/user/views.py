@@ -15,14 +15,14 @@ bp = Blueprint("user", __name__)
 
 @bp.route("/users", methods=(["GET"]))
 def get_users():
-    users = list(db["users"].find({}))
+    users = list(db["users"].find({}, {"password": False}))
     return generate_response(users)
 
 
 @bp.route("/users/<user_id>", methods=(["GET"]))
 def get_user_by_id(user_id):
     try:
-        user = db["users"].find_one({"_id": ObjectId(user_id)})
+        user = db["users"].find_one({"_id": ObjectId(user_id)}, {"password": False})
         if user:
             return generate_response(user)
         else:
