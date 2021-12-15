@@ -12,5 +12,5 @@ FROM gcr.io/distroless/python3-debian10
 COPY --from=build-venv /venv /venv
 COPY . /app
 WORKDIR /app
-RUN ENV=CI pytest
+RUN ENV=CI /venv/bin/python3 -m pytest
 ENTRYPOINT ["/venv/bin/python3", "-m", "gunicorn", "-b", ":8080", "api:app"]
