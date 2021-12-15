@@ -7,10 +7,10 @@ RUN apt-get update && \
 FROM build AS build-venv
 COPY requirements.txt /requirements.txt
 RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt
-RUN ENV=CI pytest
 
 FROM gcr.io/distroless/python3-debian10
 COPY --from=build-venv /venv /venv
 COPY . /app
 WORKDIR /app
+RUN ENV=CI pytest
 ENTRYPOINT ["/venv/bin/python3", "-m", "gunicorn", "-b", ":8080", "api:app"]
