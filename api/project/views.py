@@ -17,15 +17,15 @@ def get_projects(_):
 
 
 @bp.route("/projects/<project_id>", methods=(["GET"]))
-@auth_required
-def get_project_by_id(_, project_id):
+def get_project_by_id(project_id):
     try:
-        project = db["projects"].find_one({"_id": ObjectId(project_id)})
+        project = Project.get_project_by_id(project_id)
         if project:
             return generate_response(project)
         else:
             return "Project not found", 404
-    except Exception:
+    except Exception as e:
+        logging.error(e)
         return jsonify({"message": "Get project by ID failed"}), 500
 
 
