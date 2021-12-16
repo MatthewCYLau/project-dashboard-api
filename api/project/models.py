@@ -1,7 +1,7 @@
 import uuid
 from bson.objectid import ObjectId
 from api.db.setup import db
-from api.user.views import auth_required
+from api.auth.auth import auth_required
 
 
 class Project:

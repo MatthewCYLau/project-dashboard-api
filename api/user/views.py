@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
 import os
 import jwt
+import logging
 import datetime
 from .models import User
 
@@ -36,10 +37,11 @@ def register_user():
     user = db["users"].find_one({"email": data["email"]})
     if user:
         return jsonify({"message": "Email already registered"}), 400
-    hashed_password = generate_password_hash(data["password"], method="sha256")
-    new_user = User(email=data["email"], password=hashed_password)
-    db.users.insert_one(vars(new_user))
-    return jsonify({"message": "User created"}), 201
+    new_user = User(email=data["email"], password=data["password"])
+    if new_user.save_user_to_db():
+        return jsonify({"message": "User created"}), 201
+    else:
+        return jsonify({"message": "Failed to create user"}), 500
 
 
 @bp.route("/users/<user_id>", methods=["DELETE"])
@@ -79,3 +81,24 @@ def login_user():
         return jsonify({"token": token})
 
     return jsonify({"message": "User not authorized"}), 401
+
+
+@bp.route("/users/<user_id>", methods=["PUT"])
+@auth_required
+def update_user_by_id(current_user, user_id):
+    data = request.get_json()
+    if not data or not data["email"] or not data["password"]:
+        return jsonify({"message": "Missing field"}), 400
+    if current_user["email"] != data["email"]:
+        user = db["users"].find_one({"email": data["email"]})
+        if user:
+            return jsonify({"message": "Email already registered"}), 400
+    try:
+        res = User.update_user_by_id(user_id=user_id, data=data)
+        if res.matched_count:
+            return "User updated", 200
+        else:
+            return "User not found", 404
+    except Exception as e:
+        logging.error(e)
+        return jsonify({"message": "Update project failed"}), 500
