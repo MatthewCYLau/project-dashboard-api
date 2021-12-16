@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 import logging
+from datetime import datetime, timezone
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
@@ -33,7 +34,9 @@ def get_project_by_id(project_id):
 @auth_required
 def create_project(_):
     data = request.get_json()
-    new_project = Project(name=data["name"])
+    new_project = Project(
+        name=data["name"], created=datetime.now(timezone.utc), last_modified=datetime.now(timezone.utc)
+    )
     db.projects.insert_one(vars(new_project))
     return jsonify({"message": "Project created"}), 201
 
