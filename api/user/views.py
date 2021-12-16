@@ -3,11 +3,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
+from api.auth.auth import auth_required
 import os
 import jwt
 import datetime
-import logging
-from functools import wraps
 from .models import User
 
 bp = Blueprint("user", __name__)
@@ -55,7 +54,13 @@ def delete_user(user_id):
         return jsonify({"message": "Delete user by ID failed"}), 500
 
 
-@bp.route("/login", methods=["POST"])
+@bp.route("/auth", methods=["GET"])
+@auth_required
+def get_auth_user(user):
+    return generate_response(user)
+
+
+@bp.route("/auth", methods=["POST"])
 def login_user():
 
     data = request.get_json()
@@ -74,27 +79,3 @@ def login_user():
         return jsonify({"token": token})
 
     return jsonify({"message": "User not authorized"}), 401
-
-
-def auth_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-
-        token = None
-
-        if "x-auth-token" in request.headers:
-            token = request.headers["x-auth-token"]
-
-        if not token:
-            return jsonify({"message": "User not authorized"}), 401
-
-        try:
-            data = jwt.decode(token, os.environ.get("JWT_SECRET"), algorithms="HS256")
-            user = db["users"].find_one({"email": data["email"]}, {"password": False})
-        except Exception as e:
-            logging.error(e)
-            return jsonify({"message": "Invalid token"}), 401
-
-        return f(user, *args, **kwargs)
-
-    return decorator

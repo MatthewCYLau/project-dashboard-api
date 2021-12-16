@@ -3,7 +3,7 @@ import logging
 from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
-from api.user.views import auth_required
+from api.auth.auth import auth_required
 from .models import Project
 
 bp = Blueprint("project", __name__)
@@ -58,7 +58,7 @@ def update_project_by_id(_, project_id):
     if not data or not data["name"]:
         return jsonify({"message": "Missing field"}), 400
     try:
-        res = db["projects"].replace_one({"_id": ObjectId(project_id)}, data, True)
+        res = Project.update_project_by_id(project_id=project_id, data=data)
         if res.matched_count:
             return "Project updated", 200
         else:
