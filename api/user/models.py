@@ -1,12 +1,14 @@
 import uuid
 from werkzeug.security import generate_password_hash
 from bson.objectid import ObjectId
+from api.common.models import BaseModel
 from api.db.setup import db
 from api.auth.auth import auth_required
 
 
-class User:
-    def __init__(self, email, password):
+class User(BaseModel):
+    def __init__(self, email, password, created, last_modified):
+        super().__init__(created, last_modified)
         self.email = email
         self.password = password
 

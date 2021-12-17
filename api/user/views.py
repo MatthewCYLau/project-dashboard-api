@@ -7,7 +7,7 @@ from api.auth.auth import auth_required
 import os
 import jwt
 import logging
-import datetime
+from datetime import datetime, timezone, timedelta
 from .models import User
 
 bp = Blueprint("user", __name__)
@@ -37,7 +37,12 @@ def register_user():
     user = db["users"].find_one({"email": data["email"]})
     if user:
         return jsonify({"message": "Email already registered"}), 400
-    new_user = User(email=data["email"], password=data["password"])
+    new_user = User(
+        email=data["email"],
+        password=data["password"],
+        created=datetime.now(timezone.utc),
+        last_modified=datetime.now(timezone.utc),
+    )
     if new_user.save_user_to_db():
         return jsonify({"message": "User created"}), 201
     else:
@@ -74,7 +79,7 @@ def login_user():
 
     if check_password_hash(user["password"], data["password"]):
         token = jwt.encode(
-            {"email": user["email"], "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+            {"email": user["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
             os.environ.get("JWT_SECRET"),
             algorithm="HS256",
         )
