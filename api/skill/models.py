@@ -18,6 +18,11 @@ class Skill(BaseModel):
 
     @staticmethod
     @auth_required
+    def get_skill_by_name(_, name: str):
+        return db["skills"].find_one({"name": name})
+
+    @staticmethod
+    @auth_required
     def update_skill_by_id(_, skill_id: uuid.UUID, data: dict):
         updated_skill = {"$set": {"name": data["name"], "last_modified": datetime.now(timezone.utc)}}
         return db["skills"].update_one({"_id": ObjectId(skill_id)}, updated_skill, True)

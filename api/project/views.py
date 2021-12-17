@@ -41,6 +41,7 @@ def create_project(_):
         name=data["name"],
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
+        skills=[],
     )
     db.projects.insert_one(vars(new_project))
     return jsonify({"message": "Project created"}), 201

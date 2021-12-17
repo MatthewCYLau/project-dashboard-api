@@ -37,6 +37,11 @@ def get_skill_by_id(skill_id):
 @auth_required
 def create_skill(_):
     data = request.get_json()
+    if not data or not data["name"]:
+        return jsonify({"message": "Missing field"}), 400
+    skill = Skill.get_skill_by_name(data["name"])
+    if skill:
+        return jsonify({"message": "Skill already exists"}), 400
     new_skill = Skill(
         name=data["name"],
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
