@@ -7,10 +7,10 @@ from api.auth.auth import auth_required
 
 
 class Project(BaseModel):
-    def __init__(self, name, created, last_modified, skills):
+    def __init__(self, name, created, last_modified, project_skills):
         super().__init__(created, last_modified)
         self.name = name
-        self.skills = skills
+        self.project_skills = project_skills
 
     @staticmethod
     @auth_required
@@ -22,3 +22,10 @@ class Project(BaseModel):
     def update_project_by_id(_, project_id: uuid.UUID, data: dict):
         updated_project = {"$set": {"name": data["name"], "last_modified": datetime.now(timezone.utc)}}
         return db["projects"].update_one({"_id": ObjectId(project_id)}, updated_project, True)
+
+    @staticmethod
+    @auth_required
+    def add_project_skill(_, project_id: uuid.UUID, data: dict):
+        return db["project_skills"].insert_one(
+            {"skill_id": data["skill_id"], "project_id": project_id, "name": data["name"]}
+        )

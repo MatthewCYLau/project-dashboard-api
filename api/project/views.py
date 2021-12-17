@@ -43,7 +43,7 @@ def create_project(_):
         name=data["name"],
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
-        skills=[],
+        project_skills=[],
     )
     db.projects.insert_one(vars(new_project))
     return jsonify({"message": "Project created"}), 201
@@ -74,6 +74,25 @@ def update_project_by_id(_, project_id):
             return "Project updated", 200
         else:
             return "Project not found", 404
+    except Exception as e:
+        logging.error(e)
+        return jsonify({"message": "Update project failed"}), 500
+
+
+@bp.route("/projects/<project_id>/project-skills", methods=["POST"])
+@auth_required
+def add_project_skill(_, project_id):
+    data = request.get_json()
+    if not data or not data["skill_id"] or not data["name"]:
+        return jsonify({"message": "Missing field"}), 400
+    skill = Skill.get_skill_by_id(data["skill_id"])
+    if not skill:
+        return jsonify({"message": "Skill has not been created"}), 400
+    if skill["name"] != data["name"]:
+        return jsonify({"message": "Please enter valid skill name"}), 400
+    try:
+        Project.add_project_skill(project_id=project_id, data=data)
+        return jsonify({"message": "Project skill added"}), 200
     except Exception as e:
         logging.error(e)
         return jsonify({"message": "Update project failed"}), 500

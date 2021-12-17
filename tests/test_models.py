@@ -10,7 +10,7 @@ def test_new_project():
     THEN check the name field is defined correctly
     """
     project = Project(
-        name="foo", created=datetime.now(timezone.utc), last_modified=datetime.now(timezone.utc), skills=[]
+        name="foo", created=datetime.now(timezone.utc), last_modified=datetime.now(timezone.utc), project_skills=[]
     )
     assert project.name == "foo"
 
