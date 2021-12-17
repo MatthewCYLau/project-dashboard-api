@@ -7,6 +7,8 @@ from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
 from .models import Project
+from api.skill.models import Skill
+
 
 bp = Blueprint("project", __name__)
 
@@ -66,6 +68,11 @@ def update_project_by_id(_, project_id):
     data = request.get_json()
     if not data or not data["name"]:
         return jsonify({"message": "Missing field"}), 400
+
+    for i in data["skills"]:
+        skill = Skill.get_skill_by_name(i["name"])
+        if not skill:
+            return jsonify({"message": "Skill has not been created"}), 400
     try:
         res = Project.update_project_by_id(project_id=project_id, data=data)
         if res.matched_count:
