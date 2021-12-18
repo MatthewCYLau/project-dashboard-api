@@ -4,6 +4,8 @@ A reference project to deploy a Python Flask app onto GCP Cloud Run
 
 ![cicd cloud run workflow](https://github.com/MatthewCYLau/python-flask-gcp/actions/workflows/cicd-cloud-run.yml/badge.svg)
 
+An app which track skills used in various projects
+
 ## Pre-requisite
 
 - Make sure you have installed Python 3, and [pip](https://pip.pypa.io/en/stable/installing/)
@@ -13,7 +15,7 @@ python3 --version # prints Python 3 version
 pip3 --version # prints pip version
 ```
 
-## Run/build app locally
+## Run app locally
 
 ```bash
 virtualenv -p /usr/bin/python3 venv # create new virtual environment venv
@@ -29,6 +31,24 @@ deactivate # deactivates venv
 pip3 install boto # installs new Python package
 pip3 freeze > requirements.txt # updates requirements.txt
 ```
+
+## Build
+
+```bash
+gcloud builds submit --tag gcr.io/<PROJECT-ID>/python-flask-gcp
+```
+
+## Deploy
+
+- Create two secrets on [Secrets Manager](https://cloud.google.com/secret-manager) named `jwt-secret`, and `mongo-db-connection-string`
+
+- Deploy to Cloud Run by running:
+
+```bash
+gcloud run deploy --image gcr.io/<PROJECT-ID>/python-flask-gcp --platform managed
+```
+
+- Allow Cloud Run service access to the secrets as secret environment variables. See GCP Cloud Run documentation [here](https://cloud.google.com/run/docs/configuring/secrets#mounting-secrets)
 
 ## Contributing
 
