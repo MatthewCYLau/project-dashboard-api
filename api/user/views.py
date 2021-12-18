@@ -54,9 +54,9 @@ def delete_user(user_id):
     try:
         res = db["users"].delete_one({"_id": ObjectId(user_id)})
         if res.deleted_count:
-            return "User removed", 200
+            return jsonify({"message": "User deleted"}), 200
         else:
-            return "User not found", 404
+            return jsonify({"message": "User not found"}), 404
     except Exception:
         return jsonify({"message": "Delete user by ID failed"}), 500
 
@@ -77,7 +77,7 @@ def login_user():
 
     user = db["users"].find_one({"email": data["email"]})
 
-    if check_password_hash(user["password"], data["password"]):
+    if user and check_password_hash(user["password"], data["password"]):
         token = jwt.encode(
             {"email": user["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
             os.environ.get("JWT_SECRET"),
@@ -101,9 +101,9 @@ def update_user_by_id(current_user, user_id):
     try:
         res = User.update_user_by_id(user_id=user_id, data=data)
         if res.matched_count:
-            return "User updated", 200
+            return jsonify({"message": "User updated"}), 200
         else:
-            return "User not found", 404
+            return jsonify({"message": "User not found"}), 404
     except Exception as e:
         logging.error(e)
         return jsonify({"message": "Update project failed"}), 500

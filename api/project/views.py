@@ -19,6 +19,10 @@ GB = pytz.timezone("Europe/London")
 @auth_required
 def get_projects(_):
     projects = list(db["projects"].find({}))
+    for project in projects:
+        project_skills = Project.get_project_skills_by_project_id(str(project["_id"]))
+        for i in project_skills:
+            project["project_skills"].append(i)
     return generate_response(projects)
 
 
@@ -58,9 +62,10 @@ def delete_project_by_id(_, project_id):
     try:
         res = db["projects"].delete_one({"_id": ObjectId(project_id)})
         if res.deleted_count:
-            return "Project removed", 200
+            return jsonify({"message": "Project deleted"}), 200
+
         else:
-            return "Project not found", 404
+            return jsonify({"message": "Project not found"}), 404
     except Exception:
         return jsonify({"message": "Delete project by ID failed"}), 500
 
@@ -74,9 +79,9 @@ def update_project_by_id(_, project_id):
     try:
         res = Project.update_project_by_id(project_id=project_id, data=data)
         if res.matched_count:
-            return "Project updated", 200
+            return jsonify({"message": "Project updated"}), 200
         else:
-            return "Project not found", 404
+            return jsonify({"message": "Project not found"}), 404
     except Exception as e:
         logging.error(e)
         return jsonify({"message": "Update project failed"}), 500

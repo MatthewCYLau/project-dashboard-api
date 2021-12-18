@@ -57,9 +57,9 @@ def delete_skill_by_id(_, skill_id):
     try:
         res = db["skills"].delete_one({"_id": ObjectId(skill_id)})
         if res.deleted_count:
-            return "Skill removed", 200
+            return jsonify({"message": "Skill deleted"}), 200
         else:
-            return "Skill not found", 404
+            return jsonify({"message": "Skill not found"}), 404
     except Exception:
         return jsonify({"message": "Delete skill by ID failed"}), 500
 
@@ -73,9 +73,9 @@ def update_skill_by_id(_, skill_id):
     try:
         res = Skill.update_skill_by_id(skill_id=skill_id, data=data)
         if res.matched_count:
-            return "Skill updated", 200
+            return jsonify({"message": "Skill updated"}), 200
         else:
-            return "Skill not found", 404
+            return jsonify({"message": "Skill not found"}), 404
     except Exception as e:
         logging.error(e)
         return jsonify({"message": "Update skill failed"}), 500
