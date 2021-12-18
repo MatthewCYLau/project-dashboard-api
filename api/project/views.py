@@ -27,6 +27,9 @@ def get_project_by_id(project_id):
     try:
         project = Project.get_project_by_id(project_id)
         if project:
+            project_skill = Project.get_project_skills_by_project_id(project_id)
+            for i in project_skill:
+                project["project_skills"].append(i)
             return generate_response(project)
         else:
             return "Project not found", 404

@@ -27,5 +27,14 @@ class Project(BaseModel):
     @auth_required
     def add_project_skill(_, project_id: uuid.UUID, data: dict):
         return db["project_skills"].insert_one(
-            {"skill_id": data["skill_id"], "project_id": project_id, "name": data["name"]}
+            {
+                "project_id": project_id,
+                "skill_id": data["skill_id"],
+                "name": data["name"],
+            }
         )
+
+    @staticmethod
+    @auth_required
+    def get_project_skills_by_project_id(_, project_id: uuid.UUID):
+        return db["project_skills"].find({"project_id": project_id})
