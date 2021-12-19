@@ -73,7 +73,7 @@ def login_user():
     data = request.get_json()
 
     if not data or not data["email"] or not data["password"]:
-        return jsonify({"message": "User not authorized"}), 401
+        return jsonify({"errors": [{"message": "User not authorized"}]}), 401
 
     user = db["users"].find_one({"email": data["email"]})
 
@@ -85,7 +85,7 @@ def login_user():
         )
         return jsonify({"token": token})
 
-    return jsonify({"message": "User not authorized"}), 401
+    return jsonify({"errors": [{"message": "User not authorized"}]}), 401
 
 
 @bp.route("/users/<user_id>", methods=["PUT"])
