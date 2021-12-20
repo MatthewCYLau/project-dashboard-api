@@ -1,5 +1,6 @@
-from flask import request, jsonify
+from flask import request
 from api.db.setup import db
+from api.exception.models import UnauthorizedException
 import os
 import jwt
 import logging
@@ -16,14 +17,14 @@ def auth_required(f):
             token = request.headers["x-auth-token"]
 
         if not token:
-            return jsonify({"errors": [{"message": "User not authorized"}]}), 401
+            raise UnauthorizedException("Token missing", status_code=401)
 
         try:
             data = jwt.decode(token, os.environ.get("JWT_SECRET"), algorithms="HS256")
             user = db["users"].find_one({"email": data["email"]}, {"password": False})
         except Exception as e:
             logging.error(e)
-            return jsonify({"errors": [{"message": "Invalid token"}]}), 401
+            raise UnauthorizedException("Invalid token", status_code=401)
 
         return f(user, *args, **kwargs)
 

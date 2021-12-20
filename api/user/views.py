@@ -4,6 +4,7 @@ from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
+from api.exception.models import UnauthorizedException
 import os
 import jwt
 import logging
@@ -73,7 +74,7 @@ def login_user():
     data = request.get_json()
 
     if not data or not data["email"] or not data["password"]:
-        return jsonify({"errors": [{"message": "User not authorized"}]}), 401
+        raise UnauthorizedException("User not authorized", status_code=401)
 
     user = db["users"].find_one({"email": data["email"]})
 
@@ -85,7 +86,7 @@ def login_user():
         )
         return jsonify({"token": token})
 
-    return jsonify({"errors": [{"message": "User not authorized"}]}), 401
+    raise UnauthorizedException("User not authorized", status_code=401)
 
 
 @bp.route("/users/<user_id>", methods=["PUT"])
