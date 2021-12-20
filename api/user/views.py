@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
-from api.exception.models import UnauthorizedException
+from api.exception.models import UnauthorizedException, BadRequestException
 import os
 import jwt
 import logging
@@ -37,7 +37,7 @@ def register_user():
     data = request.get_json()
     user = db["users"].find_one({"email": data["email"]})
     if user:
-        return jsonify({"message": "Email already registered"}), 400
+        raise BadRequestException("Email already registered", status_code=400)
     new_user = User(
         email=data["email"],
         password=data["password"],
@@ -98,7 +98,7 @@ def update_user_by_id(current_user, user_id):
     if current_user["email"] != data["email"]:
         user = db["users"].find_one({"email": data["email"]})
         if user:
-            return jsonify({"message": "Email already registered"}), 400
+            raise BadRequestException("Email already registered", status_code=400)
     try:
         res = User.update_user_by_id(user_id=user_id, data=data)
         if res.matched_count:

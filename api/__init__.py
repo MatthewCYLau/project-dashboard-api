@@ -19,6 +19,7 @@ app.register_blueprint(skill.bp, url_prefix="/api")
 
 
 @app.errorhandler(UnauthorizedException)
+@app.errorhandler(BadRequestException)
 def handle_unauthorized_exception(e):
     return e.generate_exception_response()
 
