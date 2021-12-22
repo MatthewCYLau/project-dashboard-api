@@ -53,8 +53,11 @@ def create_project(_):
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         project_skills=[],
     )
-    db.projects.insert_one(vars(new_project))
-    return jsonify({"message": "Project created"}), 201
+    res = db.projects.insert_one(vars(new_project))
+    if res.inserted_id:
+        return jsonify({"project_id": str(res.inserted_id)}), 201
+    else:
+        return jsonify({"message": "Create project failed"}), 500
 
 
 @bp.route("/projects/<project_id>", methods=["DELETE"])
