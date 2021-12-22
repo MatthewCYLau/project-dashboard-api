@@ -27,7 +27,8 @@ def get_projects(_):
 
 
 @bp.route("/projects/<project_id>", methods=(["GET"]))
-def get_project_by_id(project_id):
+@auth_required
+def get_project_by_id(_, project_id):
     try:
         project = Project.get_project_by_id(project_id)
         if project:
