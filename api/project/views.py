@@ -95,16 +95,19 @@ def update_project_by_id(_, project_id):
 @auth_required
 def add_project_skill(_, project_id):
     data = request.get_json()
-    if not data or not data["skill_id"] or not data["name"]:
-        return jsonify({"message": "Missing field"}), 400
-    skill = Skill.get_skill_by_id(data["skill_id"])
-    if not skill:
-        return jsonify({"message": "Skill has not been created"}), 400
-    if skill["name"] != data["name"]:
-        return jsonify({"message": "Please enter valid skill name"}), 400
+    if not data:
+        return jsonify({"message": "Missing data"}), 400
     try:
-        Project.add_project_skill(project_id=project_id, data=data)
+        for i in data:
+            if not "skill_id" in i or not "name" in i:
+                return jsonify({"message": "Missing field"}), 400
+            skill = Skill.get_skill_by_id(i["skill_id"])
+            if not skill:
+                return jsonify({"message": "Skill has not been created"}), 400
+            if skill["name"] != i["name"]:
+                return jsonify({"message": "Please enter valid skill name"}), 400
+            Project.add_project_skill(project_id=project_id, data=i)
         return jsonify({"message": "Project skill added"}), 200
     except Exception as e:
         logging.error(e)
-        return jsonify({"message": "Update project failed"}), 500
+        return jsonify({"message": "Add project skills failed"}), 500
