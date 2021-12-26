@@ -91,13 +91,18 @@ def update_project_by_id(_, project_id):
         return jsonify({"message": "Update project failed"}), 500
 
 
-@bp.route("/projects/<project_id>/project-skills", methods=["POST"])
+@bp.route("/projects/<project_id>/project-skills", methods=["PUT"])
 @auth_required
-def add_project_skill(_, project_id):
+def update_project_skill(_, project_id):
     data = request.get_json()
     if not data:
-        return jsonify({"message": "Missing data"}), 400
+        res = Project.remove_project_skills_by_project_id(project_id=project_id)
+        if res.deleted_count:
+            return jsonify({"message": "Project skills deleted"}), 200
+        else:
+            return jsonify({"message": "Delete project skills failed"}), 500
     try:
+        res = Project.remove_project_skills_by_project_id(project_id=project_id)
         for i in data:
             if not "skill_id" in i or not "name" in i:
                 return jsonify({"message": "Missing field"}), 400
@@ -107,7 +112,7 @@ def add_project_skill(_, project_id):
             if skill["name"] != i["name"]:
                 return jsonify({"message": "Please enter valid skill name"}), 400
             Project.add_project_skill(project_id=project_id, data=i)
-        return jsonify({"message": "Project skill added"}), 200
+        return jsonify({"message": "Project skills updated"}), 200
     except Exception as e:
         logging.error(e)
-        return jsonify({"message": "Add project skills failed"}), 500
+        return jsonify({"message": "Update project skills failed"}), 500
