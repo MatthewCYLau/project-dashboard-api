@@ -4,7 +4,7 @@ A reference project to deploy a Python Flask app onto GCP Cloud Run
 
 ![cicd cloud run workflow](https://github.com/MatthewCYLau/python-flask-gcp/actions/workflows/cicd-cloud-run.yml/badge.svg)
 
-An app which track skills used in various projects
+An app which tracks skills used in various projects
 
 ## Pre-requisite
 

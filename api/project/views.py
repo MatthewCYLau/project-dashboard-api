@@ -116,3 +116,10 @@ def update_project_skill(_, project_id):
     except Exception as e:
         logging.error(e)
         return jsonify({"message": "Update project skills failed"}), 500
+
+
+@bp.route("/project-skills", methods=(["GET"]))
+@auth_required
+def get_project_skills(_):
+    project_skills = list(Project.get_project_skills())
+    return generate_response(project_skills)

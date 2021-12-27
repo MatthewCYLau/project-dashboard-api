@@ -43,3 +43,8 @@ class Project(BaseModel):
     @auth_required
     def remove_project_skills_by_project_id(_, project_id: uuid.UUID):
         return db["project_skills"].delete_many({"project_id": project_id})
+
+    @staticmethod
+    @auth_required
+    def get_project_skills(_):
+        return db["project_skills"].find({})
