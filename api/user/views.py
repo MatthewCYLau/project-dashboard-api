@@ -45,7 +45,12 @@ def register_user():
         last_modified=datetime.now(timezone.utc),
     )
     if new_user.save_user_to_db():
-        return jsonify({"message": "User created"}), 201
+        token = jwt.encode(
+            {"email": data["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
+            os.environ.get("JWT_SECRET"),
+            algorithm="HS256",
+        )
+        return jsonify({"message": "User created", "token": token}), 201
     else:
         return jsonify({"message": "Failed to create user"}), 500
 
