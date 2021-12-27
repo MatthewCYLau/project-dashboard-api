@@ -48,3 +48,9 @@ class Project(BaseModel):
     @auth_required
     def get_project_skills(_):
         return db["project_skills"].find({})
+
+    @staticmethod
+    @auth_required
+    def get_project_skills_group_by_name_count(_):
+        pipeline = [{"$group": {"_id": "$name", "count": {"$sum": 1}}}]
+        return db["project_skills"].aggregate(pipeline)
