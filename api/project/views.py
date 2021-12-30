@@ -18,7 +18,8 @@ GB = pytz.timezone("Europe/London")
 @bp.route("/projects", methods=(["GET"]))
 @auth_required
 def get_projects(_):
-    projects = list(db["projects"].find({}))
+    count = int(request.args["count"]) if "count" in request.args else 0
+    projects = list(db["projects"].find({}).limit(count))
     for project in projects:
         project_skills = Project.get_project_skills_by_project_id(str(project["_id"]))
         for i in project_skills:
