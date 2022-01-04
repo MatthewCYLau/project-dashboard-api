@@ -41,6 +41,7 @@ def register_user():
     new_user = User(
         email=data["email"],
         password=data["password"],
+        isEmailVerified=False,
         created=datetime.now(timezone.utc),
         last_modified=datetime.now(timezone.utc),
     )

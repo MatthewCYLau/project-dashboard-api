@@ -7,10 +7,11 @@ from api.auth.auth import auth_required
 
 
 class User(BaseModel):
-    def __init__(self, email, password, created, last_modified):
+    def __init__(self, email, password, isEmailVerified, created, last_modified):
         super().__init__(created, last_modified)
         self.email = email
         self.password = password
+        self.isEmailVerified = isEmailVerified
 
     def save_user_to_db(self):
         self.password = generate_password_hash(self.password, method="sha256")
