@@ -9,7 +9,8 @@ TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TWILIO_VERIFY_SERVICE = os.environ.get("TWILIO_VERIFY_SERVICE")
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 
 def send_verification(to_email):
