@@ -5,6 +5,7 @@ from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
 from api.exception.models import UnauthorizedException, BadRequestException
+from api.twilio.verify import send_verification, check_verification_token
 import os
 import jwt
 import logging
@@ -36,7 +37,7 @@ def get_user_by_id(user_id):
 def register_user():
     data = request.get_json()
     user = db["users"].find_one({"email": data["email"]})
-    if user:
+    if user and user["isEmailVerified"] == True:
         raise BadRequestException("Email already registered", status_code=400)
     new_user = User(
         email=data["email"],
@@ -51,6 +52,7 @@ def register_user():
             os.environ.get("JWT_SECRET"),
             algorithm="HS256",
         )
+        send_verification(to_email=data["email"])
         return jsonify({"message": "User created", "token": token}), 201
     else:
         return jsonify({"message": "Failed to create user"}), 500
@@ -93,6 +95,35 @@ def login_user():
         return jsonify({"token": token})
 
     raise UnauthorizedException("User not authorized", status_code=401)
+
+
+@bp.route("/trigger-verification", methods=["POST"])
+def trigger_verification():
+    data = request.get_json()
+    if not data or not data["email"]:
+        return jsonify({"message": "Missing fields"}), 500
+
+    try:
+        send_verification(to_email=data["email"])
+        return jsonify({"message": "Email verification sent"}), 200
+    except Exception as e:
+        logging.error(e)
+        return jsonify({"message": "Send email verification failed"}), 500
+
+
+@bp.route("/verify-email", methods=["POST"])
+def verify_user_email():
+
+    data = request.get_json()
+    if not data or not data["code"] or not data["email"]:
+        return jsonify({"message": "Verification code is missing"}), 500
+
+    verification_code = data["code"]
+    if check_verification_token(data["email"], verification_code):
+        User.update_user_as_email_verified(data["email"])
+        return jsonify({"message": "User email verification success"}), 200
+    else:
+        return jsonify({"message": "User email verification failed "}), 400
 
 
 @bp.route("/users/<user_id>", methods=["PUT"])
