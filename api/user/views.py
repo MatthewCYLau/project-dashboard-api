@@ -119,10 +119,14 @@ def verify_user_email():
         return jsonify({"message": "Verification code is missing"}), 500
 
     verification_code = data["code"]
-    if check_verification_token(data["email"], verification_code):
-        User.update_user_as_email_verified(data["email"])
-        return jsonify({"message": "User email verification success"}), 200
-    else:
+    try:
+        if check_verification_token(data["email"], verification_code):
+            User.update_user_as_email_verified(data["email"])
+            return jsonify({"message": "User email verification success"}), 200
+        else:
+            raise BadRequestException("User email verification failed", status_code=400)
+    except Exception as e:
+        logging.error(e)
         raise BadRequestException("User email verification failed", status_code=400)
 
 
