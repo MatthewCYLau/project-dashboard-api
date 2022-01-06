@@ -123,7 +123,7 @@ def verify_user_email():
         User.update_user_as_email_verified(data["email"])
         return jsonify({"message": "User email verification success"}), 200
     else:
-        return jsonify({"message": "User email verification failed "}), 400
+        raise BadRequestException("User email verification failed", status_code=400)
 
 
 @bp.route("/users/<user_id>", methods=["PUT"])
