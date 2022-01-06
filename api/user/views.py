@@ -37,7 +37,7 @@ def get_user_by_id(user_id):
 def register_user():
     data = request.get_json()
     user = db["users"].find_one({"email": data["email"]})
-    if user and user["isEmailVerified"] == True:
+    if user:
         raise BadRequestException("Email already registered", status_code=400)
     new_user = User(
         email=data["email"],
@@ -47,13 +47,8 @@ def register_user():
         last_modified=datetime.now(timezone.utc),
     )
     if new_user.save_user_to_db():
-        token = jwt.encode(
-            {"email": data["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
-            os.environ.get("JWT_SECRET"),
-            algorithm="HS256",
-        )
         send_verification(to_email=data["email"])
-        return jsonify({"message": "User created", "token": token}), 201
+        return jsonify({"message": "User created"}), 201
     else:
         return jsonify({"message": "Failed to create user"}), 500
 
@@ -87,6 +82,9 @@ def login_user():
     user = db["users"].find_one({"email": data["email"]})
 
     if user and check_password_hash(user["password"], data["password"]):
+        if not user["isEmailVerified"]:
+            raise UnauthorizedException("User email has not been verified", status_code=401)
+
         token = jwt.encode(
             {"email": user["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
             os.environ.get("JWT_SECRET"),
@@ -122,7 +120,12 @@ def verify_user_email():
     try:
         if check_verification_token(data["email"], verification_code):
             User.update_user_as_email_verified(data["email"])
-            return jsonify({"message": "User email verification success"}), 200
+            token = jwt.encode(
+                {"email": data["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
+                os.environ.get("JWT_SECRET"),
+                algorithm="HS256",
+            )
+            return jsonify({"message": "User email verification success", "token": token}), 200
         else:
             raise BadRequestException("User email verification failed", status_code=400)
     except Exception as e:

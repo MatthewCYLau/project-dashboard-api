@@ -25,8 +25,7 @@ class User(BaseModel):
         return db["users"].replace_one({"_id": ObjectId(user_id)}, updated_user, True)
 
     @staticmethod
-    @auth_required
-    def update_user_as_email_verified(_, email):
+    def update_user_as_email_verified(email):
         user = db["users"].find_one({"email": email})
         if user is not None:
             updated_user = {**user, "isEmailVerified": True}
