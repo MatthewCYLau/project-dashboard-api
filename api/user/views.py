@@ -50,7 +50,7 @@ def register_user():
         send_verification(to_email=data["email"])
         return jsonify({"message": "User created"}), 201
     else:
-        return jsonify({"message": "Failed to create user"}), 500
+        return jsonify({"errors": [{"message": "Failed to create user"}]}), 500
 
 
 @bp.route("/users/<user_id>", methods=["DELETE"])
