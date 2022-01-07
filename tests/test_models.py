@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from api.project.models import Project
 from api.skill.models import Skill
+from api.user.models import User
 
 
 def test_new_project():
@@ -18,3 +19,10 @@ def test_new_project():
 def test_new_skill():
     skill = Skill(name="foo", created=datetime.now(timezone.utc), last_modified=datetime.now(timezone.utc))
     assert skill.name == "foo"
+
+
+def test_new_user():
+    user = User(
+        "foo@bar.com", "password", False, created=datetime.now(timezone.utc), last_modified=datetime.now(timezone.utc)
+    )
+    assert user.email == "foo@bar.com"
