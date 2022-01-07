@@ -11,11 +11,11 @@ class PyMongoMock(MongoClient):
 
 
 class TestUsers(unittest.TestCase):
-    def test_get_users(self):
-        with patch.object(db, "mongo", PyMongoMock()):
-            mock_app = app.test_client()
-            response = mock_app.get("/api/users")
-            self.assertEqual(response.status_code, 200)
+    # def test_get_users(self):
+    #     with patch.object(db, "mongo", PyMongoMock()):
+    #         mock_app = app.test_client()
+    #         response = mock_app.get("/api/users")
+    #         self.assertEqual(response.status_code, 200)
 
     def test_get_auth_user_as_unauthorized_user(self):
         mock_app = app.test_client()
