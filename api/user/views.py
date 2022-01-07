@@ -46,10 +46,14 @@ def register_user():
         created=datetime.now(timezone.utc),
         last_modified=datetime.now(timezone.utc),
     )
-    if new_user.save_user_to_db():
-        send_verification(to_email=data["email"])
-        return jsonify({"message": "User created"}), 201
-    else:
+    try:
+        if new_user.save_user_to_db():
+            send_verification(to_email=data["email"])
+            return jsonify({"message": "User created"}), 201
+        else:
+            return jsonify({"errors": [{"message": "Failed to create user"}]}), 500
+    except Exception as e:
+        logging.error(e)
         return jsonify({"errors": [{"message": "Failed to create user"}]}), 500
 
 
