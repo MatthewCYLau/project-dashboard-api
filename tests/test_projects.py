@@ -16,3 +16,8 @@ class TestUsers(unittest.TestCase):
             mock_app = app.test_client()
             response = mock_app.get("/api/users")
             self.assertEqual(response.status_code, 200)
+
+    def test_get_auth_user_as_unauthorized_user(self):
+        mock_app = app.test_client()
+        response = mock_app.get("/api/auth")
+        self.assertEqual(response.status_code, 401)
