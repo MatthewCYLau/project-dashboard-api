@@ -50,6 +50,13 @@ gcloud run deploy --image gcr.io/<PROJECT-ID>/python-flask-gcp --platform manage
 
 - Allow Cloud Run service access to the secrets as secret environment variables. See GCP Cloud Run documentation [here](https://cloud.google.com/run/docs/configuring/secrets#mounting-secrets)
 
+## Testing
+
+```bash
+pytest
+pytest --cov=api
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change
