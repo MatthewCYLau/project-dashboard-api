@@ -7,6 +7,7 @@ from api.db.setup import db
 from api.util.util import generate_response
 from api.auth.auth import auth_required
 from .models import Project
+from api.exception.models import UnauthorizedException
 from api.skill.models import Skill
 
 
@@ -46,11 +47,12 @@ def get_project_by_id(_, project_id):
 
 @bp.route("/projects", methods=(["POST"]))
 @auth_required
-def create_project(_):
+def create_project(user):
     data = request.get_json()
     new_project = Project(
         name=data["name"],
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
+        created_by=user["_id"],
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         project_skills=[],
     )
@@ -63,7 +65,12 @@ def create_project(_):
 
 @bp.route("/projects/<project_id>", methods=["DELETE"])
 @auth_required
-def delete_project_by_id(_, project_id):
+def delete_project_by_id(user, project_id):
+
+    project = Project.get_project_by_id(project_id)
+    if project["created_by"] != user["_id"]:
+        raise UnauthorizedException("User is not authorized to delete project", status_code=401)
+
     try:
         res = db["projects"].delete_one({"_id": ObjectId(project_id)})
         if res.deleted_count:

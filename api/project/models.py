@@ -7,9 +7,10 @@ from api.auth.auth import auth_required
 
 
 class Project(BaseModel):
-    def __init__(self, name, created, last_modified, project_skills):
+    def __init__(self, name, created, created_by, last_modified, project_skills):
         super().__init__(created, last_modified)
         self.name = name
+        self.created_by = created_by
         self.project_skills = project_skills
 
     @staticmethod
