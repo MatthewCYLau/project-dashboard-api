@@ -9,6 +9,7 @@ from api.auth.auth import auth_required
 from .models import Project
 from api.exception.models import UnauthorizedException
 from api.skill.models import Skill
+from api.user.models import User
 
 
 bp = Blueprint("project", __name__)
@@ -20,11 +21,7 @@ GB = pytz.timezone("Europe/London")
 @auth_required
 def get_projects(_):
     count = int(request.args["count"]) if "count" in request.args else 0
-    projects = list(db["projects"].find({}).limit(count))
-    for project in projects:
-        project_skills = Project.get_project_skills_by_project_id(str(project["_id"]))
-        for i in project_skills:
-            project["project_skills"].append(i)
+    projects = Project.get_projects(count)
     return generate_response(projects)
 
 

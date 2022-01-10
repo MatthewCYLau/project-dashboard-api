@@ -14,6 +14,17 @@ class Project(BaseModel):
         self.project_skills = project_skills
 
     @staticmethod
+    def get_projects(count: int = 0):
+        projects = list(db["projects"].find({}).limit(count))
+        for project in projects:
+            project_skills = Project.get_project_skills_by_project_id(str(project["_id"]))
+            for i in project_skills:
+                project["project_skills"].append(i)
+            if project["created_by"]:
+                project["created_by"] = db["users"].find_one({"_id": project["created_by"]}, {"password": False})
+        return projects
+
+    @staticmethod
     @auth_required
     def get_project_by_id(_, project_id: uuid.UUID):
         return db["projects"].find_one({"_id": ObjectId(project_id)})
