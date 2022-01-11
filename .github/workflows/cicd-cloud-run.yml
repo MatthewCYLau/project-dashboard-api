@@ -15,7 +15,7 @@ jobs:
   test:
     strategy:
       matrix:
-        python-version: [3.7.12, 3.8.12]
+        python-version: [3.7.12]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,12 +29,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install -r requirements.txt
           pip install -e .
       - name: Run unit tests
         run: |
           pytest
   setup-build-publish-deploy:
+    needs: test
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     environment:
