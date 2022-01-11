@@ -12,10 +12,10 @@ env:
   CLOUD_RUN_SERVICE: python-flask-gcp
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
-        python-version: [3.8.6]
+        python-version: [3.7.12, 3.8.12]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
