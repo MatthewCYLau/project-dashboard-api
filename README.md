@@ -1,10 +1,8 @@
 # Project Dashboard API
 
-A reference project to deploy a Python Flask app onto GCP Cloud Run
+A Python Flask app which tracks skills used in various projects
 
 ![cicd cloud run workflow](https://github.com/MatthewCYLau/project-dashboard-api/actions/workflows/cicd-cloud-run.yml/badge.svg)
-
-A Python Flask app which tracks skills used in various projects
 
 Front-end React TypeScript project can be found [here](https://github.com/MatthewCYLau/project-dashboard-client)
 
