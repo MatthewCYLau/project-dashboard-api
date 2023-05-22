@@ -4,6 +4,8 @@ A Python Flask app which tracks skills used in various projects
 
 ![cicd cloud run workflow](https://github.com/MatthewCYLau/project-dashboard-api/actions/workflows/cicd-cloud-run.yml/badge.svg)
 
+API URL here: [`https://python-flask-gcp-3i2mtbjusq-ew.a.run.app`](https://python-flask-gcp-3i2mtbjusq-ew.a.run.app)
+
 Front-end React TypeScript project can be found [here](https://github.com/MatthewCYLau/project-dashboard-client)
 
 ## Pre-requisite
