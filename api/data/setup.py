@@ -39,7 +39,7 @@ def add_test_user():
     else:
         test_user = User(
             email=data["email"],
-            password=generate_password_hash(data["password"], method="sha256"),
+            password=generate_password_hash(data["password"], method="pbkdf2"),
             name=data["name"],
             isEmailVerified=True,  # Test users automatically have email verified
             created=datetime.now(timezone.utc),

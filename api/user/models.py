@@ -15,7 +15,7 @@ class User(BaseModel):
         self.isEmailVerified = isEmailVerified
 
     def save_user_to_db(self):
-        self.password = generate_password_hash(self.password, method="sha256")
+        self.password = generate_password_hash(self.password, method="pbkdf2")
         res = db.users.insert_one(vars(self))
         return res.inserted_id
 
@@ -28,7 +28,7 @@ class User(BaseModel):
     def update_user_by_id(_, user_id: uuid.UUID, data: dict):
         updated_user = {
             "email": data["email"],
-            "password": generate_password_hash(data["password"], method="sha256"),
+            "password": generate_password_hash(data["password"], method="pbkdf2"),
             "name": data["name"],
         }
         return db["users"].replace_one({"_id": ObjectId(user_id)}, updated_user, True)
