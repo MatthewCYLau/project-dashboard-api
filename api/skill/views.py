@@ -47,7 +47,7 @@ def create_skill(_):
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
     )
-    db.skills.insert_one(vars(new_skill))
+    new_skill.save_to_database()
     return jsonify({"message": "Skill created"}), 201
 
 

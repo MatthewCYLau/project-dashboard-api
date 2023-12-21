@@ -17,7 +17,10 @@ bp = Blueprint("user", __name__)
 
 @bp.route("/users", methods=(["GET"]))
 def get_users():
-    users = list(db["users"].find({}, {"password": False}))
+    email = request.args.get("email")
+    query = {"email": email} if request.args.get("email") else {}
+
+    users = list(db["users"].find(query, {"password": False}))
     return generate_response(users)
 
 
@@ -36,12 +39,13 @@ def get_user_by_id(user_id):
 @bp.route("/users", methods=(["POST"]))
 def register_user():
     data = request.get_json()
-    user = db["users"].find_one({"email": data["email"]})
+    user = User.get_user_by_email(data["email"])
     if user:
         raise BadRequestException("Email already registered", status_code=400)
     new_user = User(
         email=data["email"],
         password=data["password"],
+        name=data["name"],
         isEmailVerified=False,
         created=datetime.now(timezone.utc),
         last_modified=datetime.now(timezone.utc),
@@ -83,11 +87,13 @@ def login_user():
     if not data or not data["email"] or not data["password"]:
         raise UnauthorizedException("User not authorized", status_code=401)
 
-    user = db["users"].find_one({"email": data["email"]})
+    user = User.get_user_by_email(data["email"])
 
     if user and check_password_hash(user["password"], data["password"]):
         if not user["isEmailVerified"]:
-            raise UnauthorizedException("User email has not been verified", status_code=401)
+            raise UnauthorizedException(
+                "User email has not been verified", status_code=401
+            )
 
         token = jwt.encode(
             {"email": user["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
@@ -125,11 +131,17 @@ def verify_user_email():
         if check_verification_token(data["email"], verification_code):
             User.update_user_as_email_verified(data["email"])
             token = jwt.encode(
-                {"email": data["email"], "exp": datetime.utcnow() + timedelta(minutes=30)},
+                {
+                    "email": data["email"],
+                    "exp": datetime.utcnow() + timedelta(minutes=30),
+                },
                 os.environ.get("JWT_SECRET"),
                 algorithm="HS256",
             )
-            return jsonify({"message": "User email verification success", "token": token}), 200
+            return (
+                jsonify({"message": "User email verification success", "token": token}),
+                200,
+            )
         else:
             raise BadRequestException("User email verification failed", status_code=400)
     except Exception as e:
@@ -141,7 +153,7 @@ def verify_user_email():
 @auth_required
 def update_user_by_id(current_user, user_id):
     data = request.get_json()
-    if not data or not data["email"] or not data["password"]:
+    if not data or not data["email"] or not data["password"] or not data["name"]:
         return jsonify({"message": "Missing field"}), 400
     if current_user["email"] != data["email"]:
         user = db["users"].find_one({"email": data["email"]})

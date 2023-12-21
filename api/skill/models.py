@@ -1,4 +1,5 @@
 import uuid
+import logging
 from datetime import datetime, timezone
 from bson.objectid import ObjectId
 from api.common.models import BaseModel
@@ -24,5 +25,11 @@ class Skill(BaseModel):
     @staticmethod
     @auth_required
     def update_skill_by_id(_, skill_id: uuid.UUID, data: dict):
-        updated_skill = {"$set": {"name": data["name"], "last_modified": datetime.now(timezone.utc)}}
+        updated_skill = {
+            "$set": {"name": data["name"], "last_modified": datetime.now(timezone.utc)}
+        }
         return db["skills"].update_one({"_id": ObjectId(skill_id)}, updated_skill, True)
+
+    def save_to_database(self):
+        db.skills.insert_one(vars(self))
+        logging.info(f"Saved skill to database - {self.name}")

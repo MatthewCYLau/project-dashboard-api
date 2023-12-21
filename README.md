@@ -17,6 +17,19 @@ python3 --version # prints Python 3 version
 pip3 --version # prints pip version
 ```
 
+## Configure environment variables
+
+- Create a `.env` file with the following, and place inside of `/config` directory:
+
+```bash
+MONGO_DB_CONNECTION_STRING=<MONGO-DB-CONNECTION-STRING>
+JWT_SECRET=<JWT-SECRET>
+TWILIO_ACCOUNT_SID=<TWILIO-ACCOUNT-SID>
+TWILIO_AUTH_TOKEN=<TWILIO-AUTH-TOKEN>
+TWILIO_VERIFY_SERVICE=<TWILIO-VERIFY-SERVICE>
+SENDGRID_API_KEY=<SENDGRID-API-KEY>
+```
+
 ## Run app locally
 
 ```bash

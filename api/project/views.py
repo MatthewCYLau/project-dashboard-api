@@ -4,12 +4,15 @@ import pytz
 from datetime import datetime, timezone
 from bson.objectid import ObjectId
 from api.db.setup import db
-from api.util.util import generate_response
+from api.util.util import (
+    generate_response,
+    return_dupliucated_items_in_list,
+    is_valid_sector,
+)
 from api.auth.auth import auth_required
 from .models import Project
-from api.exception.models import UnauthorizedException
+from api.exception.models import UnauthorizedException, BadRequestException
 from api.skill.models import Skill
-from api.user.models import User
 
 
 bp = Blueprint("project", __name__)
@@ -49,6 +52,7 @@ def create_project(user):
     new_project = Project(
         name=data["name"],
         created=datetime.now(timezone.utc).astimezone(GB).isoformat(),
+        sector=data["sector"],
         created_by=user["_id"],
         last_modified=datetime.now(timezone.utc).astimezone(GB).isoformat(),
         project_skills=[],
@@ -63,10 +67,11 @@ def create_project(user):
 @bp.route("/projects/<project_id>", methods=["DELETE"])
 @auth_required
 def delete_project_by_id(user, project_id):
-
     project = Project.get_project_by_id(project_id)
     if project["created_by"] != user["_id"]:
-        raise UnauthorizedException("User is not authorized to delete project", status_code=401)
+        raise UnauthorizedException(
+            "User is not authorized to delete project", status_code=401
+        )
 
     try:
         res = db["projects"].delete_one({"_id": ObjectId(project_id)})
@@ -83,8 +88,12 @@ def delete_project_by_id(user, project_id):
 @auth_required
 def update_project_by_id(_, project_id):
     data = request.get_json()
-    if not data or not data["name"]:
+    if not data or not data["name"] or not data["sector"]:
         return jsonify({"message": "Missing field"}), 400
+
+    if not (is_valid_sector(data["sector"])):
+        raise BadRequestException("Invalid sector", status_code=400)
+
     try:
         res = Project.update_project_by_id(project_id=project_id, data=data)
         if res.matched_count:
@@ -107,7 +116,7 @@ def update_project_skill(_, project_id):
         else:
             return jsonify({"message": "Delete project skills failed"}), 500
     try:
-        res = Project.remove_project_skills_by_project_id(project_id=project_id)
+        validated_project_skills = []
         for i in data:
             if not "skill_id" in i or not "name" in i:
                 return jsonify({"message": "Missing field"}), 400
@@ -116,7 +125,25 @@ def update_project_skill(_, project_id):
                 return jsonify({"message": "Skill has not been created"}), 400
             if skill["name"] != i["name"]:
                 return jsonify({"message": "Please enter valid skill name"}), 400
+            validated_project_skills.append(i)
+        skills = [i["name"] for i in validated_project_skills]
+        duplicated_skills = return_dupliucated_items_in_list(skills)
+
+        if duplicated_skills:
+            return (
+                jsonify(
+                    {
+                        "message": f'Duplicated skills - {", ".join([i for i in duplicated_skills])}'
+                    }
+                ),
+                400,
+            )
+        Project.remove_project_skills_by_project_id(project_id=project_id)
+        [
             Project.add_project_skill(project_id=project_id, data=i)
+            for i in validated_project_skills
+        ]
+
         return jsonify({"message": "Project skills updated"}), 200
     except Exception as e:
         logging.error(e)

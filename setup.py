@@ -1,3 +1,3 @@
 from setuptools import setup
 
-setup(name="python-flask-gcp")
+setup(name="project-dashboard-api")

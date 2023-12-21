@@ -7,9 +7,9 @@ on:
 
 env:
   PROJECT_ID: open-source-apps-001
-  IMAGE: python-flask-gcp
+  IMAGE: project-dashboard-api
   REGISTRY_HOSTNAME: gcr.io
-  CLOUD_RUN_SERVICE: python-flask-gcp
+  CLOUD_RUN_SERVICE: project-dashboard-api
 
 jobs:
   test:
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://python-flask-gcp-3i2mtbjusq-ew.a.run.app
+      url: https://project-dashboard-api-3i2mtbjusq-ew.a.run.app
     steps:
       - name: Checkout
         uses: actions/checkout@v2

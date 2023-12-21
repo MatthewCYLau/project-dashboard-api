@@ -10,7 +10,6 @@ from functools import wraps
 def auth_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-
         token = None
 
         if "x-auth-token" in request.headers:
