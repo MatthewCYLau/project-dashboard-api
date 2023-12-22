@@ -22,11 +22,7 @@ def get_comments(_):
         if request.args.get("project_id")
         else {}
     )
-    comments = list(db["comments"].find(query))
-    for comment in comments:
-        likes = list(db["likes"].find({"comment_id": str(comment["_id"])}))
-        for i in likes:
-            comment["likes"].append(i)
+    comments = Comment.get_comments(query)
     return generate_response(comments)
 
 

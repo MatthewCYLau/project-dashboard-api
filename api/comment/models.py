@@ -23,6 +23,20 @@ class Comment(BaseModel):
         return project_id
 
     @staticmethod
+    def get_comments(query: dict):
+        comments = list(db["comments"].find(query))
+        for comment in comments:
+            likes = list(db["likes"].find({"comment_id": str(comment["_id"])}))
+            for i in likes:
+                comment["likes"].append(i)
+            if comment["created_by"]:
+                comment["created_by"] = db["users"].find_one(
+                    {"_id": ObjectId(comment["created_by"])},
+                    {"password": False, "isEmailVerified": False},
+                )
+        return comments
+
+    @staticmethod
     @auth_required
     def get_comment_by_id(_, comment_id: uuid.UUID):
         return db["comments"].find_one({"_id": ObjectId(comment_id)})
